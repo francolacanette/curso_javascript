@@ -8,10 +8,26 @@
 </head>
 <body>
     <h1>Calculadora de Edades</h1>
-    <button onclick="calcularEdadPersona()">Calcular Edad de Persona</button>
-    <button onclick="simularCalculo()">Simular Cálculo de Edades</button>
-    <button onclick="buscarPersona()">Buscar Persona por Nombre</button>
-    <p id="resultado"></p>
+    
+    <h2>Calcular Edad de Persona</h2>
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" placeholder="Ingrese su nombre">
+    <br>
+    <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+    <input type="date" id="fechaNacimiento">
+    <br>
+    <button id="calcularEdadBtn">Calcular Edad</button>
+    <div id="calcularResultados"></div>
+
+    <h2>Buscar Persona por Nombre</h2>
+    <label for="nombreBusqueda">Nombre:</label>
+    <input type="text" id="nombreBusqueda" placeholder="Ingrese un nombre">
+    <br>
+    <button id="buscarPersonaBtn">Buscar Persona</button>
+    <div id="buscarResultados"></div>
+
+    <h2>Lista de Personas</h2>
+    <ul id="personasList"></ul>
 
     <script src="./js/main.js"></script>
 </body>

@@ -1,70 +1,53 @@
 const personas = [];
 
-function calcularEdadPersona() {
-  let nombre = "";
-  let fechaNacimientoInput = "";
-
-  while (nombre === "") {
-    nombre = prompt("Ingrese su nombre:");
-    if (nombre === null || nombre === "") {
-      alert("Debe ingresar un nombre.");
-      return;
-    }
-  }
-
-  while (fechaNacimientoInput === "") {
-    fechaNacimientoInput = prompt("Ingrese su fecha de nacimiento (YYYY-MM-DD):");
-    if (fechaNacimientoInput === null || fechaNacimientoInput === "") {
-      alert("Debe ingresar una fecha de nacimiento.");
-      return;
-    }
-  }
-
-  const fechaNacimiento = new Date(fechaNacimientoInput);
-  const edad = calcularEdad(fechaNacimiento);
-
-  let mensaje = `Hola ${nombre}, usted tiene ${edad} años.`;
-  if (edad >= 18) {
-    mensaje += " Es mayor de edad.";
-  } else {
-    mensaje += " Es menor de edad.";
-  }
-
-  document.getElementById("resultado").innerText = mensaje;
-
-  personas.push({ nombre, fechaNacimiento: fechaNacimientoInput, edad });
+function saveToLocalStorage() {
+    localStorage.setItem('personas', JSON.stringify(personas));
 }
 
-function simularCalculo() {
-  const resultados = [];
+function loadFromLocalStorage() {
+    const storedPersonas = localStorage.getItem('personas');
+    if (storedPersonas) {
+        return JSON.parse(storedPersonas);
+    }
+    return [];
+}
 
-  while (true) {
-    const nombre = prompt("Ingrese un nombre (o deje en blanco para finalizar):");
-    if (nombre === null || nombre === "") {
-      break;
+personas.push(...loadFromLocalStorage());
+
+function calcularEdadPersona() {
+    const nombre = document.getElementById("nombre").value;
+    const fechaNacimientoInput = document.getElementById("fechaNacimiento").value;
+    const calcularResultados = document.getElementById("calcularResultados");
+
+
+    if (nombre === "") {
+      calcularResultados.textContent = "Debe ingresar un nombre.";
+        return;
     }
 
-    let fechaNacimientoInput = "";
-    while (fechaNacimientoInput === "") {
-      fechaNacimientoInput = prompt(`Ingrese la fecha de nacimiento de ${nombre} (YYYY-MM-DD):`);
-      if (fechaNacimientoInput === null || fechaNacimientoInput === "") {
-        alert("Debe ingresar una fecha de nacimiento.");
+    if (fechaNacimientoInput === "") {
+      calcularResultados.textContent = "Debe ingresar una fecha de nacimiento.";
         return;
-      }
     }
 
     const fechaNacimiento = new Date(fechaNacimientoInput);
     const edad = calcularEdad(fechaNacimiento);
-    resultados.push({ nombre, fechaNacimiento: fechaNacimientoInput, edad });
-  }
 
-  personas.push(...resultados);
+    let mensaje = `Hola ${nombre}, usted tiene ${edad} años.`;
+    if (edad >= 18) {
+        mensaje += " Es mayor de edad.";
+    } else {
+        mensaje += " Es menor de edad.";
+    }
 
-  let mensaje = "Resultados de la simulación:\n";
-  for (const resultado of resultados) {
-    mensaje += `Nombre: ${resultado.nombre}, Fecha de nacimiento: ${resultado.fechaNacimiento}, Edad: ${resultado.edad} años\n`;
-  }
-  alert(mensaje);
+    calcularResultados.textContent = mensaje;
+
+    personas.push({ nombre, fechaNacimiento: fechaNacimientoInput, edad });
+    saveToLocalStorage();
+    displayPersonas();
+
+    document.getElementById("nombre").value = "";
+    document.getElementById("fechaNacimiento").value = "";
 }
 
 function calcularEdad(fechaNacimiento) {
@@ -87,22 +70,41 @@ function calcularEdad(fechaNacimiento) {
 }
 
 function buscarPersonaPorNombre(nombre) {
-  return personas.find(persona => persona.nombre === nombre);
+    return personas.find(persona => persona.nombre === nombre);
 }
 
 function buscarPersona() {
-  const nombreBuscado = prompt("Ingrese el nombre de la persona a buscar:");
-  if (nombreBuscado === null || nombreBuscado === "") {
-    alert("Debe ingresar un nombre.");
-    return;
-  }
+    const nombreBuscado = document.getElementById("nombreBusqueda").value;
+    const buscarResultados = document.getElementById("buscarResultados");
 
-  const personaEncontrada = buscarPersonaPorNombre(nombreBuscado);
+    if (nombreBuscado === "") {
+      buscarResultados.textContent = "Debe ingresar un nombre.";
+        return;
+    }
 
-  if (personaEncontrada) {
-    const mensaje = `Persona encontrada: ${personaEncontrada.nombre}, Fecha de nacimiento: ${personaEncontrada.fechaNacimiento}, Edad: ${personaEncontrada.edad} años.`;
-    alert(mensaje);
-  } else {
-    alert("No se encontró ninguna persona con ese nombre.");
-  }
+    const personaEncontrada = buscarPersonaPorNombre(nombreBuscado);
+
+    if (personaEncontrada) {
+      buscarResultados.textContent = `Persona encontrada: ${personaEncontrada.nombre}, Fecha de nacimiento: ${personaEncontrada.fechaNacimiento}, Edad: ${personaEncontrada.edad} años.`;
+    } else {
+      buscarResultados.textContent = "No se encontró ninguna persona con ese nombre.";
+    }
+
+    document.getElementById("nombreBusqueda").value = "";
 }
+
+function displayPersonas() {
+    const personasList = document.getElementById("personasList");
+    personasList.innerHTML = "";
+
+    for (const persona of personas) {
+        const listItem = document.createElement("li");
+        listItem.textContent = `Nombre: ${persona.nombre}, Fecha de nacimiento: ${persona.fechaNacimiento}, Edad: ${persona.edad} años`;
+        personasList.appendChild(listItem);
+    }
+}
+
+document.getElementById("calcularEdadBtn").addEventListener("click", calcularEdadPersona);
+document.getElementById("buscarPersonaBtn").addEventListener("click", buscarPersona);
+
+displayPersonas();
