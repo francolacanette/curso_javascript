@@ -15,40 +15,74 @@ function loadFromLocalStorage() {
 personas.push(...loadFromLocalStorage());
 
 function calcularEdadPersona() {
-    const nombre = document.getElementById("nombre").value;
-    const fechaNacimientoInput = document.getElementById("fechaNacimiento").value;
-    const calcularResultados = document.getElementById("calcularResultados");
+  const nombre = document.getElementById("nombre").value;
+  const fechaNacimientoInput = document.getElementById("fechaNacimiento").value;
+  const calcularResultados = document.getElementById("calcularResultados");
 
+  if (nombre === "") {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Debe ingresar un nombre.'
+    });
+    return;
+  }
 
-    if (nombre === "") {
-      calcularResultados.textContent = "Debe ingresar un nombre.";
-        return;
-    }
+  if (fechaNacimientoInput === "") {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Debe ingresar una fecha de nacimiento.'
+    });
+    return;
+  }
 
-    if (fechaNacimientoInput === "") {
-      calcularResultados.textContent = "Debe ingresar una fecha de nacimiento.";
-        return;
-    }
+  const fechaNacimiento = new Date(fechaNacimientoInput);
 
-    const fechaNacimiento = new Date(fechaNacimientoInput);
-    const edad = calcularEdad(fechaNacimiento);
+  const minDate = new Date("1899-01-01");
+  if (fechaNacimiento < minDate) {
+    Swal.fire({
+      icon: 'warning',
+      title: '¡Wow, un viajero del tiempo!',
+      text: 'No deberías estar aquí...'
+    });
+    return;
+  }
 
-    let mensaje = `Hola ${nombre}, usted tiene ${edad} años.`;
-    if (edad >= 18) {
-        mensaje += " Es mayor de edad.";
-    } else {
-        mensaje += " Es menor de edad.";
-    }
+  const maxDate = new Date("2021-01-01");
+  if (fechaNacimiento > maxDate) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Por favor, introduzca una fecha válida.'
+    });
+    return;
+  }
 
-    calcularResultados.textContent = mensaje;
+  const edad = calcularEdad(fechaNacimiento);
 
-    personas.push({ nombre, fechaNacimiento: fechaNacimientoInput, edad });
-    saveToLocalStorage();
-    displayPersonas();
+  let mensaje = `Hola ${nombre}, usted tiene ${edad} años.`;
+  if (edad >= 18) {
+    mensaje += " Es mayor de edad.";
+  } else {
+    mensaje += " Es menor de edad.";
+    Swal.fire({
+      icon: 'warning',
+      title: 'Usted es menor de edad',
+      text: 'No deberías estar aquí...'
+    });
+  }
 
-    document.getElementById("nombre").value = "";
-    document.getElementById("fechaNacimiento").value = "";
+  calcularResultados.textContent = mensaje;
+
+  personas.push({ nombre, fechaNacimiento: fechaNacimientoInput, edad });
+  saveToLocalStorage();
+  displayPersonas();
+
+  document.getElementById("nombre").value = "";
+  document.getElementById("fechaNacimiento").value = "";
 }
+
 
 function calcularEdad(fechaNacimiento) {
   const fechaActual = new Date();
@@ -78,16 +112,28 @@ function buscarPersona() {
     const buscarResultados = document.getElementById("buscarResultados");
 
     if (nombreBuscado === "") {
-      buscarResultados.textContent = "Debe ingresar un nombre.";
-        return;
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Debe ingresar un nombre.'
+      });
+      return;
     }
 
     const personaEncontrada = buscarPersonaPorNombre(nombreBuscado);
 
     if (personaEncontrada) {
-      buscarResultados.textContent = `Persona encontrada: ${personaEncontrada.nombre}, Fecha de nacimiento: ${personaEncontrada.fechaNacimiento}, Edad: ${personaEncontrada.edad} años.`;
+      Swal.fire({
+        icon: 'success',
+        title: 'Persona encontrada',
+        text: `Nombre: ${personaEncontrada.nombre}, Fecha de nacimiento: ${personaEncontrada.fechaNacimiento}, Edad: ${personaEncontrada.edad} años.`
+      });
     } else {
-      buscarResultados.textContent = "No se encontró ninguna persona con ese nombre.";
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se encontró ninguna persona con ese nombre.'
+      });
     }
 
     document.getElementById("nombreBusqueda").value = "";
@@ -104,7 +150,14 @@ function displayPersonas() {
     }
 }
 
-document.getElementById("calcularEdadBtn").addEventListener("click", calcularEdadPersona);
-document.getElementById("buscarPersonaBtn").addEventListener("click", buscarPersona);
+document.getElementById("calcularEdadBtn").addEventListener("click", () => {
+  calcularEdadPersona();
+});
+
+document.getElementById("buscarPersonaBtn").addEventListener("click", () => {
+  buscarPersona();
+});
+
+
 
 displayPersonas();
